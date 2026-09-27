@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ベタ体色・形状 遺伝シミュレーター</title>
+  <style>
+    :root {
+      --bg-color: #f1f5f9;
+      --card-bg: #ffffff;
+      --primary-blue: #1e3a8a;
+      --male-color: #2563eb;
+      --female-color: #ec4899;
+      --text-color: #0f172a;
+      --border-color: #cbd5e1;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 12px;
+      font-size: 14px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      padding: 16px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--primary-blue);
+      margin: 0 0 4px 0;
+      font-size: 1.4rem;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-bottom: 16px;
+    }
+
+    /* タブ切り替え（スマホ向け） */
+    .parent-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px 16px;
+      border: 2px solid var(--border-color);
+      background: #f8fafc;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.male { color: #1d4ed8; }
+    .tab-btn.female { color: #be185d; }
+
+    .tab-btn.active.male {
+      background: #eff6ff;
+      border-color: var(--male-color);
+    }
+
+    .tab-btn.active.female {
+      background: #fdf2f8;
+      border-color: var(--female-color);
+    }
+
+    .parent-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px;
+      display: none;
+    }
+
+    .parent-card.active {
+      display: block;
+    }
+
+    .section-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #475569;
+      margin: 10px 0 6px 0;
+      text-transform: uppercase;
+    }
+
+    /* 形状ボタン */
+    .shape-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .shape-btn {
+      background: #fff;
+      border: 1.5px solid var(--border-color);
+      border-radius: 8px;
+      padding: 6px 2px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.15s;
+    }
+
+    .shape-btn svg {
+      width: 28px;
+      height: 28px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+    }
+
+    .shape-btn .code {
+      font-weight: 800;
+      font-size: 0.75rem;
+      margin-top: 2px;
+    }
+
+    .shape-btn .name {
+      font-size: 0.6rem;
+      color: #64748b;
+    }
+
+    .shape-btn.active {
+      border-color: var(--male-color);
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .female-card .shape-btn.active {
+      border-color: var(--female-color);
+      background: #fdf2f8;
+      color: #be185d;
+    }
+
+    /* カラーボタン */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+      gap: 6px;
+    }
+
+    .color-btn {
+      border: 1.5px solid var(--border-color);
+      border-radius: 8px;
+      padding: 6px;
+      cursor: pointer;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .color-swatch-sm {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1px solid rgba(0,0,0,0.15);
+      flex-shrink: 0;
+    }
+
+    .color-btn .color-name {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #334155;
+      line-height: 1.1;
+    }
+
+    .color-btn.active {
+      border-color: #000;
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.15);
+    }
+
+    /* 制御エリア */
+    .sim-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin: 16px 0;
+      padding: 12px;
+      background: #f8fafc;
+      border-radius: 12px;
+    }
+
+    .count-input-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .count-input-group input {
+      width: 65px;
+      padding: 6px;
+      border: 1.5px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .submit-btn {
+      width: 100%;
+      max-width: 320px;
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      color: white;
+      border: none;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 25px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+    }
+
+    .submit-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* 結果エリア */
+    .results-wrapper {
+      margin-top: 20px;
+    }
+
+    .summary-box {
+      background: #eff6ff;
+      border-left: 4px solid #2563eb;
+      padding: 12px;
+      margin-bottom: 16px;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .summary-box h3 {
+      margin: 0 0 8px 0;
+      color: #1e40af;
+      font-size: 0.95rem;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 8px;
+    }
+
+    .summary-card {
+      background: #fff;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #dbeafe;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .fish-visual-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border: 1px solid rgba(0,0,0,0.12);
+      color: #ffffff;
+    }
+
+    .fish-visual-badge.is-light { color: #1e293b; }
+
+    .fish-visual-badge svg {
+      width: 26px;
+      height: 26px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+    }
+
+    .summary-card .details { flex-grow: 1; }
+    .summary-card .trait-title { font-size: 0.75rem; font-weight: bold; }
+    .summary-card .count-text { font-size: 0.65rem; color: #64748b; }
+
+    /* ミニ個体カードグリッド */
+    .fish-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 6px;
+    }
+
+    .fish-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 6px 4px;
+      background: #fff;
+      text-align: center;
+      position: relative;
+    }
+
+    .fish-card .id {
+      font-size: 0.6rem;
+      color: #94a3b8;
+      font-weight: bold;
+    }
+
+    .gender-icon {
+      font-size: 0.65rem;
+      font-weight: bold;
+      position: absolute;
+      top: 4px;
+      right: 4px;
+    }
+    .gender-icon.male { color: #2563eb; }
+    .gender-icon.female { color: #ec4899; }
+
+    .fish-card-visual {
+      width: 100%;
+      height: 42px;
+      border-radius: 6px;
+      margin: 4px 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    .fish-card-visual svg {
+      width: 32px;
+      height: 32px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+    }
+
+    .fish-card .trait-name {
+      font-size: 0.65rem;
+      font-weight: bold;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .fish-card .shape-sub {
+      font-size: 0.6rem;
+      color: #64748b;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    @media (min-width: 640px) {
+      .parent-tabs { display: none; }
+      .parents-wrapper {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      .parent-card { display: block !important; }
+      .fish-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>ベタ体色・形状 遺伝シミュレーター</h1>
+  <div class="subtitle">学術遺伝学モデル (不完全優性・上位性対立)</div>
+
+  <!-- タブボタン（スマホ時のみ表示） -->
+  <div class="parent-tabs">
+    <button class="tab-btn male active" id="tab-male" onclick="switchTab('male')">♂ オス親の設定</button>
+    <button class="tab-btn female" id="tab-female" onclick="switchTab('female')">♀ メス親の設定</button>
+  </div>
+
+  <div class="parents-wrapper">
+    <!-- オス親 -->
+    <div class="parent-card male-card active" id="card-male">
+      <div class="section-label">♂ オス: 形状を選択</div>
+      <div class="shape-grid" id="male-shape-grid"></div>
+      <div class="section-label">♂ オス: 体色を選択</div>
+      <div class="color-grid" id="male-color-grid"></div>
+    </div>
+
+    <!-- メス親 -->
+    <div class="parent-card female-card" id="card-female">
+      <div class="section-label">♀ メス: 形状を選択</div>
+      <div class="shape-grid" id="female-shape-grid"></div>
+      <div class="section-label">♀ メス: 体色を選択</div>
+      <div class="color-grid" id="female-color-grid"></div>
+    </div>
+  </div>
+
+  <div class="sim-controls">
+    <div class="count-input-group">
+      <label for="offspring-count">孵化育成数:</label>
+      <input type="number" id="offspring-count" value="100" min="1" max="300">
+      <span>匹 (平均産卵数: 100匹)</span>
+    </div>
+    <button class="submit-btn" onclick="simulateBreeding()">交配シミュレーション実行</button>
+  </div>
+
+  <div class="results-wrapper" id="results-wrapper" style="display:none;">
+    <div class="summary-box" id="summary-box"></div>
+    <div class="fish-grid" id="fish-grid"></div>
+  </div>
+</div>
+
+<script>
+// --- データ定義 ---
+
+// 形状遺伝子定義 (K:短ヒレ, Vt:ベール, Dt:ダブル, CT:クラウン不完全優性)
+const SHAPES = [
+  {
+    id: "PK", name: "プラカット", val: "KK_vtvt_DtDt_CTCT",
+    svgMale: `<svg viewBox="0 0 24 24"><path d="M3 12c4-3 8-3 12 0-4 3-8 3-12 0z"/><path d="M15 12c3-4 6-2 6 0s-3 4-6 0z"/><path d="M8 9c2-3 5-3 6 0"/><path d="M8 15c2 3 5 3 6 0"/></svg>`,
+    svgFemale: `<svg viewBox="0 0 24 24"><path d="M4 12c4-2 7-2 11 0-4 2-7 2-11 0z"/><path d="M15 12c2-2 4-1 4 0s-2 2-4 0z"/><path d="M8 9.5c2-1.5 4-1.5 5 0"/><path d="M8 14.5c2 1.5 4 1.5 5 0"/></svg>`
+  },
+  {
+    id: "HM", name: "ハーフムーン", val: "kk_vtvt_DtDt_CTCT",
+    svgMale: `<svg viewBox="0 0 24 24"><path d="M2 12c4-3 7-3 11 0-4 3-7 3-11 0z"/><path d="M13 12c5-7 9-5 9 0s-4 7-9 0z"/><path d="M7 9.5c3-5 7-5 8 0"/><path d="M7 14.5c3 5 7 5 8 0"/></svg>`,
+    svgFemale: `<svg viewBox="0 0 24 24"><path d="M3 12c4-2 7-2 11 0-4 2-7 2-11 0z"/><path d="M14 12c3-4 5-3 5 0s-2 4-5 0z"/><path d="M8 9.5c2-2 5-2 6 0"/><path d="M8 14.5c2 2 5 2 6 0"/></svg>`
+  },
+  {
+    id: "VT", name: "ベールテール", val: "kk_VtVt_DtDt_CTCT",
+    svgMale: `<svg viewBox="0 0 24 24"><path d="M3 10c4-2 7-2 11 0-4 2-7 2-11 0z"/><path d="M14 10c4 0 0 4 7 8s-3-2-7-8z"/><path d="M8 8c2-3 5-3 6 0"/></svg>`,
+    svgFemale: `<svg viewBox="0 0 24 24"><path d="M3 11c4-2 7-2 11 0-4 2-7 2-11 0z"/><path d="M14 11c3 0 0 3 5 5s-2-1-5-5z"/><path d="M8 9c2-2 4-2 5 0"/></svg>`
+  },
+  {
+    id: "CT", name: "クラウンテール", val: "kk_vtvt_DtDt_ctct",
+    svgMale: `<svg viewBox="0 0 24 24"><path d="M3 12c4-2 7-2 11 0"/><path d="M14 12l7-5-2 5 2 5-7-5z"/><path d="M8 10l3-5 3 5"/><path d="M8 14l3 5 3-5"/></svg>`,
+    svgFemale: `<svg viewBox="0 0 24 24"><path d="M4 12c3-1.5 6-1.5 10 0"/><path d="M14 12l5-3-1.5 3 1.5 3-5-3z"/><path d="M8 10.5l2-3 2 3"/><path d="M8 13.5l2 3 2-3"/></svg>`
+  },
+  {
+    id: "DTHM", name: "ダブルテール", val: "kk_vtvt_dtdt_CTCT",
+    svgMale: `<svg viewBox="0 0 24 24"><path d="M2 12c4-3 7-3 11 0"/><path d="M13 12c4-5 8-4 8-1s-3 2-8 1z"/><path d="M13 12c4 1 8 2 8 5s-4 4-8-1z"/></svg>`,
+    svgFemale: `<svg viewBox="0 0 24 24"><path d="M3 12c4-2 7-2 11 0"/><path d="M14 12c3-3 6-2 6 0s-2 1.5-6 0z"/><path d="M14 12c3 1.5 6 2 6 0s-3 3-6 0z"/></svg>`
+  }
+];
+
+/**
+ * 画像記載の7対の対立遺伝子構造に基づく定義:
+ * 1. ブルー (Bl, bl)
+ * 2. ブルー打ち消し遺伝子 (I, i)  ※ I=打ち消し(有), i=通常(無)
+ * 3. メタリック (M, m)
+ * 4. 赤・黄 (NR, nr)
+ * 5. 赤・黄色打ち消し遺伝子 (E, e) ※ E=打ち消し(有), e=通常(無)
+ * 6. 黒色素 (C, c)
+ * 7. メラノ黒 (m_m, -) ※ m_m=メラノ(有), -=通常(無)
+ *
+ * フォーマット: "Bl,bl_I,i_M,m_NR,nr_E,e_C,c_m_m,-"
+ */
+const COLORS = [
+  { id: "black",          name: "ブラック",          val: "bl,bl_I,I_m,m_NR,NR_E,E_C,C_m_m,m_m", hex: "#18181b", isLight: false },
+  { id: "r-blue",         name: "ロイヤルブルー",     val: "Bl,bl_i,i_m,m_NR,NR_e,e_C,C_-, -",     hex: "#1d4ed8", isLight: false },
+  { id: "m-blue",         name: "メタリックブルー",   val: "Bl,bl_i,i_M,M_NR,NR_e,e_C,C_-, -",     hex: "linear-gradient(135deg, #0284c7, #1e3a8a)", isLight: false },
+  { id: "t-blue",         name: "ターコイズ",         val: "bl,bl_i,i_m,m_NR,NR_e,e_C,C_-, -",     hex: "#06b6d4", isLight: false },
+  { id: "m-green",        name: "メタリックグリーン", val: "bl,bl_i,i_M,M_NR,NR_e,e_C,C_-, -",     hex: "linear-gradient(135deg, #0d9488, #064e3b)", isLight: false },
+  { id: "s-blue",         name: "スチールブルー",     val: "Bl,Bl_i,i_m,m_NR,NR_e,e_C,C_-, -",     hex: "#475569", isLight: false },
+  { id: "red",            name: "レッド",            val: "bl,bl_I,I_m,m_NR,NR_e,e_c,c_-, -",     hex: "#dc2626", isLight: false },
+  { id: "yellow",         name: "インテンスイエロー", val: "bl,bl_I,I_m,m_nr,nr_e,e_c,c_-, -",     hex: "#eab308", isLight: false },
+  { id: "orange",         name: "オレンジ",          val: "bl,bl_I,I_m,m_NR,nr_e,e_c,c_-, -",     hex: "#ea580c", isLight: false },
+  { id: "gold",           name: "ゴールド",          val: "bl,bl_i,i_M,M_nr,nr_e,e_c,c_-, -",     hex: "linear-gradient(135deg, #f59e0b, #b45309)", isLight: false },
+  { id: "copper",         name: "カッパーゴールド",   val: "Bl,Bl_i,i_M,M_NR,NR_e,e_C,C_-, -",     hex: "linear-gradient(135deg, #d97706, #78350f)", isLight: false },
+  { id: "p-white",        name: "プラチナホワイト",   val: "Bl,Bl_i,i_M,M_NR,NR_E,E_c,c_-, -",     hex: "linear-gradient(135deg, #ffffff, #cbd5e1)", isLight: true },
+  { id: "platinum",       name: "プラチナ",          val: "Bl,Bl_i,i_M,M_NR,NR_E,E_C,C_-, -",     hex: "linear-gradient(135deg, #e0f2fe, #bae6fd)", isLight: true },
+  { id: "clear",          name: "クリア",            val: "bl,bl_I,I_m,m_NR,NR_E,E_c,c_-, -",     hex: "linear-gradient(135deg, #f8fafc, #cbd5e1)", isLight: true }
+];
+
+const state = {
+  male: { shape: SHAPES[3].val, color: COLORS[1].val }, // CT / ロイヤルブルー 初期選択
+  female: { shape: SHAPES[4].val, color: COLORS[1].val } // DT / ロイヤルブルー 初期選択
+};
+
+// --- UI操作 ---
+
+function switchTab(gender) {
+  document.getElementById('tab-male').classList.toggle('active', gender === 'male');
+  document.getElementById('tab-female').classList.toggle('active', gender === 'female');
+  document.getElementById('card-male').classList.toggle('active', gender === 'male');
+  document.getElementById('card-female').classList.toggle('active', gender === 'female');
+}
+
+function renderButtonUI() {
+  ["male", "female"].forEach(gender => {
+    // 形状
+    const shapeContainer = document.getElementById(`${gender}-shape-grid`);
+    shapeContainer.innerHTML = "";
+    SHAPES.forEach(s => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = `shape-btn ${state[gender].shape === s.val ? 'active' : ''}`;
+      btn.innerHTML = `${s.svgMale}<span class="code">${s.id}</span><span class="name">${s.name}</span>`;
+      btn.onclick = () => { state[gender].shape = s.val; renderButtonUI(); };
+      shapeContainer.appendChild(btn);
+    });
+
+    // カラー
+    const colorContainer = document.getElementById(`${gender}-color-grid`);
+    colorContainer.innerHTML = "";
+    COLORS.forEach(c => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = `color-btn ${state[gender].color === c.val ? 'active' : ''}`;
+      const swatchStyle = c.hex.includes("gradient") ? `background: ${c.hex}` : `background-color: ${c.hex}`;
+      btn.innerHTML = `<div class="color-swatch-sm" style="${swatchStyle}"></div><div class="color-name">${c.name}</div>`;
+      btn.onclick = () => { state[gender].color = c.val; renderButtonUI(); };
+      colorContainer.appendChild(btn);
+    });
+  });
+}
+
+// --- 遺伝ロジック ---
+
+function passAllele(a1, a2) { return Math.random() < 0.5 ? a1 : a2; }
+
+function parseShapeGene(geneStr) {
+  const parts = geneStr.split('_');
+  return {
+    k:  [parts[0].substring(0,1), parts[0].substring(1,2)],
+    vt: [parts[1].substring(0,2), parts[1].substring(2,4)],
+    dt: [parts[2].substring(0,2), parts[2].substring(2,4)],
+    ct: [parts[3].substring(0,2), parts[3].substring(2,4)]
+  };
+}
+
+function parseColorGene(geneStr) {
+  const parts = geneStr.split('_');
+  return {
+    bl: parts[0].split(','),
+    i:  parts[1].split(','),
+    m:  parts[2].split(','),
+    nr: parts[3].split(','),
+    e:  parts[4].split(','),
+    c:  parts[5].split(','),
+    mel: parts[6].split(',')
+  };
+}
+
+// 形状評価（学術モデル）
+function evaluateShapeStrict(kG, vtG, dtG, ctG, gender) {
+  const isShort = kG.includes("K");
+  const isVeil  = vtG.includes("Vt");
+  const isDouble = (dtG === "dtdt");
+  const isDtCarrier = (dtG === "Dtdt");
+
+  const ctCount = (ctG.match(/ct/g) || []).length;
+  const isCrown = (ctCount === 2);
+  const isComb  = (ctCount === 1);
+
+  let base = SHAPES[1]; // デフォルト: HM
+
+  if (isCrown) base = SHAPES[3];
+  else if (isDouble) base = SHAPES[4];
+  else if (isVeil) base = SHAPES[2];
+  else if (isShort) base = SHAPES[0];
+
+  let code = base.id;
+  let name = base.name;
+
+  if (isComb) {
+    if (base.id === "HM") { code = "CBT"; name = "コームテール"; }
+    else { code += "-CB"; name += "(コーム)"; }
+  }
+
+  if (isDtCarrier && !isDouble) {
+    name = "幅広" + name;
+  }
+
+  const svg = (gender === "male") ? base.svgMale : base.svgFemale;
+
+  return { id: base.id, code: code, name: name, svg: svg };
+}
+
+// 14色の体色判定評価（画像で定義された7層モデル）
+function evaluateColor7Loci(blPair, iPair, mPair, nrPair, ePair, cPair, melPair) {
+  const hasBlueInhibitor = iPair.includes("I"); // ブルー打ち消し（有）
+  const hasRedInhibitor  = ePair.includes("E"); // 赤・黄色打ち消し（有）
+  const hasMetallic      = mPair.includes("M"); // メタリック（有）
+  const isMelano         = (melPair.join("") === "m_mm_m"); // メラノホモ
+  const isCambodian      = (cPair.join("") === "cc"); // 黒なし（キャンボジア地）
+
+  const isNRHomo = (nrPair.join("") === "NRNR");
+  const isNRHetero = (nrPair.includes("NR") && nrPair.includes("nr"));
+  const isnrHomo = (nrPair.join("") === "nrnr");
+
+  // 1. 黒色素層（メラノブラック優先判定）
+  if (isMelano && !isCambodian) {
+    if (!hasBlueInhibitor && blPair.includes("Bl")) {
+      return COLORS[0]; // ブラック（ブラックオーキッド風の光沢保持）
+    }
+    return COLORS[0]; // ブラック
+  }
+
+  // 2. 最上層のメタリック／極厚光沢層（プラチナ・カッパー・ゴールド系）
+  if (hasMetallic) {
+    if (hasRedInhibitor && !hasBlueInhibitor) {
+      return isCambodian ? COLORS[11] : COLORS[12]; // プラチナホワイト or プラチナ
+    }
+    if (blPair.join("") === "BlBl") {
+      return COLORS[10]; // カッパーゴールド
+    }
+    if (isnrHomo && isCambodian) {
+      return COLORS[9]; // ゴールド
+    }
+    if (!hasBlueInhibitor) {
+      if (blPair.join("") === "blbl") return COLORS[4]; // メタリックグリーン
+      if (blPair.includes("Bl")) return COLORS[2]; // メタリックブルー
+    }
+  }
+
+  // 3. 虹彩素層（青発現）
+  if (!hasBlueInhibitor) {
+    if (blPair.join("") === "BlBl") return COLORS[5]; // スチールブルー
+    if (blPair.join("") === "blbl") return COLORS[3]; // ターコイズ
+    if (blPair.includes("Bl")) return COLORS[1]; // ロイヤルブルー
+  }
+
+  // 4. 青が消去されている場合（赤・黄・クリア）
+  if (hasRedInhibitor) {
+    return COLORS[13]; // クリア
+  }
+
+  if (isCambodian) {
+    if (isNRHomo) return COLORS[6]; // レッド
+    if (isNRHetero) return COLORS[8]; // オレンジ
+    if (isnrHomo) return COLORS[7]; // インテンスイエロー
+  }
+
+  // デフォルト
+  return COLORS[6];
+}
+
+// --- シミュレーション実行 ---
+
+function simulateBreeding() {
+  const mShapeObj = parseShapeGene(state.male.shape);
+  const fShapeObj = parseShapeGene(state.female.shape);
+  const mColorObj = parseColorGene(state.male.color);
+  const fColorObj = parseColorGene(state.female.color);
+
+  const count = parseInt(document.getElementById("offspring-count").value) || 100;
+  const offspringList = [];
+  const stats = {};
+
+  for (let i = 1; i <= count; i++) {
+    // 1. 性別決定 (1:1)
+    const gender = Math.random() < 0.5 ? "male" : "female";
+
+    // 2. 形状遺伝
+    const childK  = passAllele(mShapeObj.k[0], mShapeObj.k[1]) + passAllele(fShapeObj.k[0], fShapeObj.k[1]);
+    const childVt = passAllele(mShapeObj.vt[0], mShapeObj.vt[1]) + passAllele(fShapeObj.vt[0], fShapeObj.vt[1]);
+    const childDt = passAllele(mShapeObj.dt[0], mShapeObj.dt[1]) + passAllele(fShapeObj.dt[0], fShapeObj.dt[1]);
+    const childCt = passAllele(mShapeObj.ct[0], mShapeObj.ct[1]) + passAllele(fShapeObj.ct[0], fShapeObj.ct[1]);
+
+    const shapeRes = evaluateShapeStrict(childK, childVt, childDt, childCt, gender);
+
+    // 3. カラー遺伝（7つの対立遺伝子を独立抽出）
+    const childBl  = [passAllele(mColorObj.bl[0], mColorObj.bl[1]), passAllele(fColorObj.bl[0], fColorObj.bl[1])];
+    const childI   = [passAllele(mColorObj.i[0], mColorObj.i[1]), passAllele(fColorObj.i[0], fColorObj.i[1])];
+    const childM   = [passAllele(mColorObj.m[0], mColorObj.m[1]), passAllele(fColorObj.m[0], fColorObj.m[1])];
+    const childNR  = [passAllele(mColorObj.nr[0], mColorObj.nr[1]), passAllele(fColorObj.nr[0], fColorObj.nr[1])];
+    const childE   = [passAllele(mColorObj.e[0], mColorObj.e[1]), passAllele(fColorObj.e[0], fColorObj.e[1])];
+    const childC   = [passAllele(mColorObj.c[0], mColorObj.c[1]), passAllele(fColorObj.c[0], fColorObj.c[1])];
+    const childMel = [passAllele(mColorObj.mel[0], mColorObj.mel[1]), passAllele(fColorObj.mel[0], fColorObj.mel[1])];
+
+    const colorRes = evaluateColor7Loci(childBl, childI, childM, childNR, childE, childC, childMel);
+    const traitKey = `${colorRes.id}_${shapeRes.code}`;
+
+    offspringList.push({
+      id: i,
+      gender: gender,
+      shape: shapeRes,
+      color: colorRes
+    });
+
+    if (!stats[traitKey]) {
+      stats[traitKey] = { color: colorRes, shape: shapeRes, count: 0, maleCount: 0, femaleCount: 0 };
+    }
+    stats[traitKey].count++;
+    if (gender === "male") stats[traitKey].maleCount++;
+    else stats[traitKey].femaleCount++;
+  }
+
+  // --- 画面描画 ---
+  document.getElementById("results-wrapper").style.display = "block";
+  const summaryBox = document.getElementById("summary-box");
+  const fishGrid = document.getElementById("fish-grid");
+  fishGrid.innerHTML = "";
+
+  // 1. 集計エリア
+  let summaryHtml = `<h3>■ 孵化統計 (全 ${count} 匹)</h3><div class="summary-grid">`;
+  for (const key in stats) {
+    const item = stats[key];
+    const pct = ((item.count / count) * 100).toFixed(1);
+    const bgStyle = item.color.hex.includes("gradient") ? `background: ${item.color.hex};` : `background-color: ${item.color.hex};`;
+    const lightClass = item.color.isLight ? 'is-light' : '';
+
+    summaryHtml += `
+      <div class="summary-card">
+        <div class="fish-visual-badge ${lightClass}" style="${bgStyle}">${item.shape.svg}</div>
+        <div class="details">
+          <div class="trait-title">${item.color.name} ${item.shape.code}</div>
+          <div class="count-text"><strong>${item.count}匹</strong> (${pct}%)</div>
+          <div class="count-text">♂${item.maleCount} / ♀${item.femaleCount}</div>
+        </div>
+      </div>
+    `;
+  }
+  summaryHtml += "</div>";
+  summaryBox.innerHTML = summaryHtml;
+
+  // 2. ミニ個体カード描画
+  offspringList.forEach(fish => {
+    const card = document.createElement("div");
+    card.className = "fish-card";
+    const bgStyle = fish.color.hex.includes("gradient") ? `background: ${fish.color.hex};` : `background-color: ${fish.color.hex};`;
+    const lightClass = fish.color.isLight ? 'is-light' : '';
+    const genderSymbol = fish.gender === "male" ? "♂" : "♀";
+
+    card.innerHTML = `
+      <div class="id">#${fish.id}</div>
+      <div class="gender-icon ${fish.gender}">${genderSymbol}</div>
+      <div class="fish-card-visual ${lightClass}" style="${bgStyle}">
+        ${fish.shape.svg}
+      </div>
+      <div class="trait-name">${fish.color.name}</div>
+      <div class="shape-sub">${fish.shape.code}</div>
+    `;
+    fishGrid.appendChild(card);
+  });
+
+  // スクロール
+  document.getElementById("results-wrapper").scrollIntoView({ behavior: 'smooth' });
+}
+
+// 初期化
+renderButtonUI();
+</script>
+
+</body>
+</html>
