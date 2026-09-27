@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>ベタ体色・形状 遺伝シミュレーター</title>
+  <title>ベタ 形状＆色彩 完全遺伝シミュレーター</title>
   <style>
     :root {
       --bg-color: #f1f5f9;
@@ -15,10 +15,7 @@
       --border-color: #cbd5e1;
     }
 
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -42,7 +39,7 @@
       text-align: center;
       color: var(--primary-blue);
       margin: 0 0 4px 0;
-      font-size: 1.4rem;
+      font-size: 1.3rem;
     }
 
     .subtitle {
@@ -52,7 +49,6 @@
       margin-bottom: 16px;
     }
 
-    /* タブ切り替え（スマホ向け） */
     .parent-tabs {
       display: flex;
       gap: 8px;
@@ -72,21 +68,12 @@
       align-items: center;
       justify-content: center;
       gap: 6px;
-      transition: all 0.2s;
     }
 
     .tab-btn.male { color: #1d4ed8; }
     .tab-btn.female { color: #be185d; }
-
-    .tab-btn.active.male {
-      background: #eff6ff;
-      border-color: var(--male-color);
-    }
-
-    .tab-btn.active.female {
-      background: #fdf2f8;
-      border-color: var(--female-color);
-    }
+    .tab-btn.active.male { background: #eff6ff; border-color: var(--male-color); }
+    .tab-btn.active.female { background: #fdf2f8; border-color: var(--female-color); }
 
     .parent-card {
       background: #f8fafc;
@@ -96,22 +83,48 @@
       display: none;
     }
 
-    .parent-card.active {
-      display: block;
-    }
+    .parent-card.active { display: block; }
 
     .section-label {
       font-size: 0.8rem;
       font-weight: 700;
       color: #475569;
-      margin: 10px 0 6px 0;
+      margin: 12px 0 6px 0;
       text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    /* 形状ボタン */
+    .mode-selector {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .mode-btn {
+      flex: 1;
+      padding: 6px;
+      border: 1.5px solid var(--border-color);
+      background: #fff;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      color: #64748b;
+      transition: all 0.15s;
+    }
+
+    .mode-btn.active {
+      border-color: #0f172a;
+      background: #0f172a;
+      color: #fff;
+    }
+
     .shape-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(75px, 1fr));
       gap: 6px;
       margin-bottom: 12px;
     }
@@ -128,41 +141,17 @@
       transition: all 0.15s;
     }
 
-    .shape-btn svg {
-      width: 28px;
-      height: 28px;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 2;
-    }
+    .shape-btn svg { width: 28px; height: 28px; fill: none; stroke: currentColor; stroke-width: 2; }
+    .shape-btn .code { font-weight: 800; font-size: 0.75rem; margin-top: 2px; }
+    .shape-btn .name { font-size: 0.6rem; color: #64748b; }
+    .shape-btn .gene-tag { font-size: 0.5rem; font-family: monospace; color: #94a3b8; }
 
-    .shape-btn .code {
-      font-weight: 800;
-      font-size: 0.75rem;
-      margin-top: 2px;
-    }
+    .shape-btn.active { border-color: var(--male-color); background: #eff6ff; color: #1d4ed8; }
+    .female-card .shape-btn.active { border-color: var(--female-color); background: #fdf2f8; color: #be185d; }
 
-    .shape-btn .name {
-      font-size: 0.6rem;
-      color: #64748b;
-    }
-
-    .shape-btn.active {
-      border-color: var(--male-color);
-      background: #eff6ff;
-      color: #1d4ed8;
-    }
-
-    .female-card .shape-btn.active {
-      border-color: var(--female-color);
-      background: #fdf2f8;
-      color: #be185d;
-    }
-
-    /* カラーボタン */
     .color-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
       gap: 6px;
     }
 
@@ -173,31 +162,18 @@
       cursor: pointer;
       background: #fff;
       display: flex;
-      align-items: center;
-      gap: 6px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+      text-align: left;
     }
 
-    .color-swatch-sm {
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      border: 1px solid rgba(0,0,0,0.15);
-      flex-shrink: 0;
-    }
+    .color-btn-header { display: flex; align-items: center; gap: 6px; width: 100%; }
+    .color-swatch-sm { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.15); flex-shrink: 0; }
+    .color-btn .color-name { font-size: 0.7rem; font-weight: 700; color: #334155; }
+    .color-btn .gene-tag { font-size: 0.55rem; color: #64748b; font-family: monospace; }
+    .color-btn.active { border-color: #000; box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.15); }
 
-    .color-btn .color-name {
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: #334155;
-      line-height: 1.1;
-    }
-
-    .color-btn.active {
-      border-color: #000;
-      box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.15);
-    }
-
-    /* 制御エリア */
     .sim-controls {
       display: flex;
       flex-direction: column;
@@ -240,14 +216,7 @@
       box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
     }
 
-    .submit-btn:active {
-      transform: scale(0.98);
-    }
-
-    /* 結果エリア */
-    .results-wrapper {
-      margin-top: 20px;
-    }
+    .results-wrapper { margin-top: 20px; }
 
     .summary-box {
       background: #eff6ff;
@@ -257,16 +226,43 @@
       border-radius: 0 8px 8px 0;
     }
 
-    .summary-box h3 {
-      margin: 0 0 8px 0;
-      color: #1e40af;
-      font-size: 0.95rem;
+    .summary-box h3 { margin: 0 0 12px 0; color: #1e40af; font-size: 0.95rem; }
+
+    .chart-and-stats {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    @media (min-width: 640px) {
+      .chart-and-stats {
+        flex-direction: row;
+        align-items: flex-start;
+      }
+    }
+
+    .chart-container {
+      background: #ffffff;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid #dbeafe;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .chart-container canvas {
+      display: block;
     }
 
     .summary-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
       gap: 8px;
+      width: 100%;
     }
 
     .summary-card {
@@ -290,25 +286,16 @@
       border: 1px solid rgba(0,0,0,0.12);
       color: #ffffff;
     }
-
     .fish-visual-badge.is-light { color: #1e293b; }
-
-    .fish-visual-badge svg {
-      width: 26px;
-      height: 26px;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 2;
-    }
+    .fish-visual-badge svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2; }
 
     .summary-card .details { flex-grow: 1; }
-    .summary-card .trait-title { font-size: 0.75rem; font-weight: bold; }
+    .summary-card .trait-title { font-size: 0.72rem; font-weight: bold; }
     .summary-card .count-text { font-size: 0.65rem; color: #64748b; }
 
-    /* ミニ個体カードグリッド */
     .fish-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
       gap: 6px;
     }
 
@@ -319,13 +306,17 @@
       background: #fff;
       text-align: center;
       position: relative;
+      transition: transform 0.15s, box-shadow 0.15s;
     }
 
-    .fish-card .id {
-      font-size: 0.6rem;
-      color: #94a3b8;
-      font-weight: bold;
+    .fish-card.is-male {
+      border: 2px solid #2563eb;
+      background: #f0f7ff;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+      transform: translateY(-1px);
     }
+
+    .fish-card .id { font-size: 0.6rem; color: #94a3b8; font-weight: bold; }
 
     .gender-icon {
       font-size: 0.65rem;
@@ -333,9 +324,20 @@
       position: absolute;
       top: 4px;
       right: 4px;
+      padding: 1px 4px;
+      border-radius: 4px;
     }
-    .gender-icon.male { color: #2563eb; }
+
     .gender-icon.female { color: #ec4899; }
+
+    .gender-icon.male {
+      background: #2563eb;
+      color: #ffffff;
+      font-size: 0.7rem;
+      border-radius: 6px;
+      padding: 1px 5px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
 
     .fish-card-visual {
       width: 100%;
@@ -346,55 +348,27 @@
       align-items: center;
       justify-content: center;
       border: 1px solid rgba(0,0,0,0.1);
-      position: relative;
     }
+    .fish-card-visual.is-light { color: #1e293b; }
+    .fish-card-visual svg { width: 32px; height: 32px; fill: none; stroke: currentColor; stroke-width: 2; }
 
-    .fish-card-visual svg {
-      width: 32px;
-      height: 32px;
-      fill: none;
-      stroke: currentColor;
-      stroke-width: 2;
-    }
-
-    .fish-card .trait-name {
-      font-size: 0.65rem;
-      font-weight: bold;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .fish-card .shape-sub {
-      font-size: 0.6rem;
-      color: #64748b;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+    .fish-card .trait-name { font-size: 0.65rem; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .fish-card .gene-sub { font-size: 0.52rem; color: #94a3b8; font-family: monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     @media (min-width: 640px) {
       .parent-tabs { display: none; }
-      .parents-wrapper {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px;
-      }
+      .parents-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
       .parent-card { display: block !important; }
-      .fish-grid {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-        gap: 8px;
-      }
+      .fish-grid { grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: 8px; }
     }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <h1>ベタ体色・形状 遺伝シミュレーター</h1>
-  <div class="subtitle">学術遺伝学モデル (不完全優性・上位性対立)</div>
+  <h1>ベタ 形状＆色彩 完全遺伝シミュレーター</h1>
+  <div class="subtitle">ヒレ遺伝子4座 ＆ 色彩遺伝子7座 多因子統合モデル</div>
 
-  <!-- タブボタン（スマホ時のみ表示） -->
   <div class="parent-tabs">
     <button class="tab-btn male active" id="tab-male" onclick="switchTab('male')">♂ オス親の設定</button>
     <button class="tab-btn female" id="tab-female" onclick="switchTab('female')">♀ メス親の設定</button>
@@ -403,17 +377,35 @@
   <div class="parents-wrapper">
     <!-- オス親 -->
     <div class="parent-card male-card active" id="card-male">
-      <div class="section-label">♂ オス: 形状を選択</div>
+      <div class="section-label">♂ オス: 形状タイプ</div>
+      <div class="mode-selector">
+        <button class="mode-btn active" id="male-sgene-hetero" onclick="setShapeGeneMode('male', 'hetero')">隠れ遺伝子あり（キャリア）</button>
+        <button class="mode-btn" id="male-sgene-homo" onclick="setShapeGeneMode('male', 'homo')">血統固定（純系）</button>
+      </div>
       <div class="shape-grid" id="male-shape-grid"></div>
-      <div class="section-label">♂ オス: 体色を選択</div>
+
+      <div class="section-label">♂ オス: 色彩タイプ</div>
+      <div class="mode-selector">
+        <button class="mode-btn active" id="male-cgene-hetero" onclick="setColorGeneMode('male', 'hetero')">隠れ遺伝子あり（キャリア）</button>
+        <button class="mode-btn" id="male-cgene-homo" onclick="setColorGeneMode('male', 'homo')">血統固定（純系）</button>
+      </div>
       <div class="color-grid" id="male-color-grid"></div>
     </div>
 
     <!-- メス親 -->
     <div class="parent-card female-card" id="card-female">
-      <div class="section-label">♀ メス: 形状を選択</div>
+      <div class="section-label">♀ メス: 形状タイプ</div>
+      <div class="mode-selector">
+        <button class="mode-btn active" id="female-sgene-hetero" onclick="setShapeGeneMode('female', 'hetero')">隠れ遺伝子あり（キャリア）</button>
+        <button class="mode-btn" id="female-sgene-homo" onclick="setShapeGeneMode('female', 'homo')">血統固定（純系）</button>
+      </div>
       <div class="shape-grid" id="female-shape-grid"></div>
-      <div class="section-label">♀ メス: 体色を選択</div>
+
+      <div class="section-label">♀ メス: 色彩タイプ</div>
+      <div class="mode-selector">
+        <button class="mode-btn active" id="female-cgene-hetero" onclick="setColorGeneMode('female', 'hetero')">隠れ遺伝子あり（キャリア）</button>
+        <button class="mode-btn" id="female-cgene-homo" onclick="setColorGeneMode('female', 'homo')">血統固定（純系）</button>
+      </div>
       <div class="color-grid" id="female-color-grid"></div>
     </div>
   </div>
@@ -422,7 +414,7 @@
     <div class="count-input-group">
       <label for="offspring-count">孵化育成数:</label>
       <input type="number" id="offspring-count" value="100" min="1" max="300">
-      <span>匹 (平均産卵数: 100匹)</span>
+      <span>匹</span>
     </div>
     <button class="submit-btn" onclick="simulateBreeding()">交配シミュレーション実行</button>
   </div>
@@ -434,72 +426,67 @@
 </div>
 
 <script>
-// --- データ定義 ---
-
-// 形状遺伝子定義 (K:短ヒレ, Vt:ベール, Dt:ダブル, CT:クラウン不完全優性)
+// --- 5種形状定義 ---
 const SHAPES = [
   {
-    id: "PK", name: "プラカット", val: "KK_vtvt_DtDt_CTCT",
+    id: "PK", name: "プラカット",
+    geneHomo: "KK_vtvt_DtDt_CTCT",
+    geneHetero: "Kk_vtvt_DtDt_CTCT",
     svgMale: `<svg viewBox="0 0 24 24"><path d="M3 12c4-3 8-3 12 0-4 3-8 3-12 0z"/><path d="M15 12c3-4 6-2 6 0s-3 4-6 0z"/><path d="M8 9c2-3 5-3 6 0"/><path d="M8 15c2 3 5 3 6 0"/></svg>`,
     svgFemale: `<svg viewBox="0 0 24 24"><path d="M4 12c4-2 7-2 11 0-4 2-7 2-11 0z"/><path d="M15 12c2-2 4-1 4 0s-2 2-4 0z"/><path d="M8 9.5c2-1.5 4-1.5 5 0"/><path d="M8 14.5c2 1.5 4 1.5 5 0"/></svg>`
   },
   {
-    id: "HM", name: "ハーフムーン", val: "kk_vtvt_DtDt_CTCT",
+    id: "HM", name: "ハーフムーン",
+    geneHomo: "kk_vtvt_DtDt_CTCT",
+    geneHetero: "kk_vtvt_Dtdt_CTCT",
     svgMale: `<svg viewBox="0 0 24 24"><path d="M2 12c4-3 7-3 11 0-4 3-7 3-11 0z"/><path d="M13 12c5-7 9-5 9 0s-4 7-9 0z"/><path d="M7 9.5c3-5 7-5 8 0"/><path d="M7 14.5c3 5 7 5 8 0"/></svg>`,
     svgFemale: `<svg viewBox="0 0 24 24"><path d="M3 12c4-2 7-2 11 0-4 2-7 2-11 0z"/><path d="M14 12c3-4 5-3 5 0s-2 4-5 0z"/><path d="M8 9.5c2-2 5-2 6 0"/><path d="M8 14.5c2 2 5 2 6 0"/></svg>`
   },
   {
-    id: "VT", name: "ベールテール", val: "kk_VtVt_DtDt_CTCT",
+    id: "VT", name: "ベールテール",
+    geneHomo: "kk_VtVt_DtDt_CTCT",
+    geneHetero: "kk_Vtvt_DtDt_CTCT",
     svgMale: `<svg viewBox="0 0 24 24"><path d="M3 10c4-2 7-2 11 0-4 2-7 2-11 0z"/><path d="M14 10c4 0 0 4 7 8s-3-2-7-8z"/><path d="M8 8c2-3 5-3 6 0"/></svg>`,
     svgFemale: `<svg viewBox="0 0 24 24"><path d="M3 11c4-2 7-2 11 0-4 2-7 2-11 0z"/><path d="M14 11c3 0 0 3 5 5s-2-1-5-5z"/><path d="M8 9c2-2 4-2 5 0"/></svg>`
   },
   {
-    id: "CT", name: "クラウンテール", val: "kk_vtvt_DtDt_ctct",
+    id: "CT", name: "クラウンテール",
+    geneHomo: "kk_vtvt_DtDt_ctct",
+    geneHetero: "kk_vtvt_DtDt_CTct",
     svgMale: `<svg viewBox="0 0 24 24"><path d="M3 12c4-2 7-2 11 0"/><path d="M14 12l7-5-2 5 2 5-7-5z"/><path d="M8 10l3-5 3 5"/><path d="M8 14l3 5 3-5"/></svg>`,
     svgFemale: `<svg viewBox="0 0 24 24"><path d="M4 12c3-1.5 6-1.5 10 0"/><path d="M14 12l5-3-1.5 3 1.5 3-5-3z"/><path d="M8 10.5l2-3 2 3"/><path d="M8 13.5l2 3 2-3"/></svg>`
   },
   {
-    id: "DTHM", name: "ダブルテール", val: "kk_vtvt_dtdt_CTCT",
+    id: "DTHM", name: "ダブルテール",
+    geneHomo: "kk_vtvt_dtdt_CTCT",
+    geneHetero: "kk_vtvt_Dtdt_CTCT",
     svgMale: `<svg viewBox="0 0 24 24"><path d="M2 12c4-3 7-3 11 0"/><path d="M13 12c4-5 8-4 8-1s-3 2-8 1z"/><path d="M13 12c4 1 8 2 8 5s-4 4-8-1z"/></svg>`,
     svgFemale: `<svg viewBox="0 0 24 24"><path d="M3 12c4-2 7-2 11 0"/><path d="M14 12c3-3 6-2 6 0s-2 1.5-6 0z"/><path d="M14 12c3 1.5 6 2 6 0s-3 3-6 0z"/></svg>`
   }
 ];
 
-/**
- * 画像記載の7対の対立遺伝子構造に基づく定義:
- * 1. ブルー (Bl, bl)
- * 2. ブルー打ち消し遺伝子 (I, i)  ※ I=打ち消し(有), i=通常(無)
- * 3. メタリック (M, m)
- * 4. 赤・黄 (NR, nr)
- * 5. 赤・黄色打ち消し遺伝子 (E, e) ※ E=打ち消し(有), e=通常(無)
- * 6. 黒色素 (C, c)
- * 7. メラノ黒 (m_m, -) ※ m_m=メラノ(有), -=通常(無)
- *
- * フォーマット: "Bl,bl_I,i_M,m_NR,nr_E,e_C,c_m_m,-"
- */
-const COLORS = [
-  { id: "black",          name: "ブラック",          val: "bl,bl_I,I_m,m_NR,NR_E,E_C,C_m_m,m_m", hex: "#18181b", isLight: false },
-  { id: "r-blue",         name: "ロイヤルブルー",     val: "Bl,bl_i,i_m,m_NR,NR_e,e_C,C_-, -",     hex: "#1d4ed8", isLight: false },
-  { id: "m-blue",         name: "メタリックブルー",   val: "Bl,bl_i,i_M,M_NR,NR_e,e_C,C_-, -",     hex: "linear-gradient(135deg, #0284c7, #1e3a8a)", isLight: false },
-  { id: "t-blue",         name: "ターコイズ",         val: "bl,bl_i,i_m,m_NR,NR_e,e_C,C_-, -",     hex: "#06b6d4", isLight: false },
-  { id: "m-green",        name: "メタリックグリーン", val: "bl,bl_i,i_M,M_NR,NR_e,e_C,C_-, -",     hex: "linear-gradient(135deg, #0d9488, #064e3b)", isLight: false },
-  { id: "s-blue",         name: "スチールブルー",     val: "Bl,Bl_i,i_m,m_NR,NR_e,e_C,C_-, -",     hex: "#475569", isLight: false },
-  { id: "red",            name: "レッド",            val: "bl,bl_I,I_m,m_NR,NR_e,e_c,c_-, -",     hex: "#dc2626", isLight: false },
-  { id: "yellow",         name: "インテンスイエロー", val: "bl,bl_I,I_m,m_nr,nr_e,e_c,c_-, -",     hex: "#eab308", isLight: false },
-  { id: "orange",         name: "オレンジ",          val: "bl,bl_I,I_m,m_NR,nr_e,e_c,c_-, -",     hex: "#ea580c", isLight: false },
-  { id: "gold",           name: "ゴールド",          val: "bl,bl_i,i_M,M_nr,nr_e,e_c,c_-, -",     hex: "linear-gradient(135deg, #f59e0b, #b45309)", isLight: false },
-  { id: "copper",         name: "カッパーゴールド",   val: "Bl,Bl_i,i_M,M_NR,NR_e,e_C,C_-, -",     hex: "linear-gradient(135deg, #d97706, #78350f)", isLight: false },
-  { id: "p-white",        name: "プラチナホワイト",   val: "Bl,Bl_i,i_M,M_NR,NR_E,E_c,c_-, -",     hex: "linear-gradient(135deg, #ffffff, #cbd5e1)", isLight: true },
-  { id: "platinum",       name: "プラチナ",          val: "Bl,Bl_i,i_M,M_NR,NR_E,E_C,C_-, -",     hex: "linear-gradient(135deg, #e0f2fe, #bae6fd)", isLight: true },
-  { id: "clear",          name: "クリア",            val: "bl,bl_I,I_m,m_NR,NR_E,E_c,c_-, -",     hex: "linear-gradient(135deg, #f8fafc, #cbd5e1)", isLight: true }
+// --- 14種色彩定義 (修正済み) ---
+const COLOR_14_PRESETS = [
+  { id: "black",          name: "1. ブラック",             hex: "#18181b", chartColor: "#18181b", isLight: false, geneHomo: "bl,bl_i,i_m,m_NR,NR_e,e_C,C_mel,mel", geneHetero: "bl,bl_i,i_m,m_NR,nr_e,e_C,c_Mel,mel" },
+  { id: "r-blue",         name: "2. ロイヤルブルー",        hex: "#1d4ed8", chartColor: "#1d4ed8", isLight: false, geneHomo: "Bl,bl_I,I_m,m_NR,NR_e,e_C,C_Mel,Mel", geneHetero: "Bl,bl_I,i_m,m_NR,nr_e,e_C,c_Mel,Mel" },
+  { id: "m-blue",         name: "3. メタリックブルー",      hex: "linear-gradient(135deg, #2563eb, #1e3a8a)", chartColor: "#2563eb", isLight: false, geneHomo: "Bl,bl_I,I_M,M_NR,NR_e,e_C,C_Mel,Mel", geneHetero: "Bl,bl_I,i_M,m_NR,nr_e,e_C,c_Mel,Mel" },
+  { id: "t-blue",         name: "4. ターコイズブルー",      hex: "#06b6d4", chartColor: "#06b6d4", isLight: false, geneHomo: "bl,bl_I,I_m,m_NR,NR_e,e_C,C_Mel,Mel", geneHetero: "bl,bl_I,i_m,m_NR,nr_e,e_C,c_Mel,Mel" },
+  { id: "m-green",        name: "5. メタリックグリーン",    hex: "linear-gradient(135deg, #0d9488, #064e3b)", chartColor: "#0d9488", isLight: false, geneHomo: "bl,bl_I,I_M,M_NR,NR_e,e_C,C_Mel,Mel", geneHetero: "bl,bl_I,i_M,m_NR,nr_e,e_C,c_Mel,Mel" },
+  { id: "s-blue",         name: "6. スチールブルー",        hex: "#64748b", chartColor: "#64748b", isLight: false, geneHomo: "Bl,Bl_I,I_m,m_NR,NR_e,e_C,C_Mel,Mel", geneHetero: "Bl,Bl_I,i_m,m_NR,nr_e,e_C,c_Mel,Mel" },
+  { id: "red",            name: "7. レッド",               hex: "#dc2626", chartColor: "#dc2626", isLight: false, geneHomo: "bl,bl_i,i_m,m_NR,NR_e,e_C,C_Mel,Mel", geneHetero: "bl,bl_i,i_m,m_NR,nr_e,e_C,c_Mel,Mel" },
+  { id: "yellow",         name: "8. イエロー",             hex: "#eab308", chartColor: "#eab308", isLight: false, geneHomo: "bl,bl_i,i_m,m_nr,nr_e,e_C,C_Mel,Mel", geneHetero: "bl,bl_i,i_m,m_nr,nr_e,e_C,c_Mel,Mel" },
+  { id: "orange",         name: "9. オレンジ",             hex: "#ea580c", chartColor: "#ea580c", isLight: false, geneHomo: "bl,bl_i,i_m,m_NR,nr_e,e_C,C_Mel,Mel", geneHetero: "bl,bl_i,i_m,m_NR,nr_e,e_C,c_Mel,Mel" },
+  { id: "gold",           name: "10. ゴールド",            hex: "linear-gradient(135deg, #eab308, #a16207)", chartColor: "#d97706", isLight: false, geneHomo: "bl,bl_I,I_M,M_nr,nr_e,e_C,C_Mel,Mel", geneHetero: "bl,bl_I,i_M,m_nr,nr_e,e_C,c_Mel,Mel" },
+  { id: "copper",         name: "11. カッパー",            hex: "linear-gradient(135deg, #d97706, #78350f)", chartColor: "#b45309", isLight: false, geneHomo: "Bl,Bl_I,I_M,M_NR,NR_e,e_C,C_Mel,Mel", geneHetero: "Bl,Bl_I,i_M,m_NR,nr_e,e_C,c_Mel,Mel" },
+  { id: "platinum",       name: "12. プラチナホワイト",      hex: "linear-gradient(135deg, #f8fafc, #cbd5e1)", chartColor: "#cbd5e1", isLight: true,  geneHomo: "Bl,Bl_I,I_M,M_NR,NR_E,E_C,C_Mel,Mel", geneHetero: "Bl,Bl_I,i_M,m_NR,nr_E,e_C,c_Mel,Mel" },
+  { id: "clear",          name: "13. クリアー(透明/カンボジアン)", hex: "linear-gradient(135deg, #fce7f3, #fb7185)", chartColor: "#f472b6", isLight: true, geneHomo: "bl,bl_i,i_m,m_NR,NR_e,e_c,c_Mel,Mel", geneHetero: "bl,bl_i,i_m,m_NR,nr_e,e_c,c_Mel,Mel" },
+  { id: "opaque",         name: "14. ホワイトオパーク",     hex: "linear-gradient(135deg, #ffffff, #e2e8f0)", chartColor: "#94a3b8", isLight: true,  geneHomo: "bl,bl_I,I_m,m_NR,NR_E,E_C,C_Mel,Mel", geneHetero: "bl,bl_I,i_m,m_NR,nr_E,e_C,c_Mel,Mel" }
 ];
 
 const state = {
-  male: { shape: SHAPES[3].val, color: COLORS[1].val }, // CT / ロイヤルブルー 初期選択
-  female: { shape: SHAPES[4].val, color: COLORS[1].val } // DT / ロイヤルブルー 初期選択
+  male:   { shapeIdx: 1, shapeGeneMode: "hetero", colorIdx: 6, colorGeneMode: "hetero" },
+  female: { shapeIdx: 1, shapeGeneMode: "hetero", colorIdx: 6, colorGeneMode: "hetero" }
 };
-
-// --- UI操作 ---
 
 function switchTab(gender) {
   document.getElementById('tab-male').classList.toggle('active', gender === 'male');
@@ -508,38 +495,58 @@ function switchTab(gender) {
   document.getElementById('card-female').classList.toggle('active', gender === 'female');
 }
 
+function setShapeGeneMode(gender, mode) {
+  state[gender].shapeGeneMode = mode;
+  document.getElementById(`${gender}-sgene-hetero`).classList.toggle('active', mode === 'hetero');
+  document.getElementById(`${gender}-sgene-homo`).classList.toggle('active', mode === 'homo');
+  renderButtonUI();
+}
+
+function setColorGeneMode(gender, mode) {
+  state[gender].colorGeneMode = mode;
+  document.getElementById(`${gender}-cgene-hetero`).classList.toggle('active', mode === 'hetero');
+  document.getElementById(`${gender}-cgene-homo`).classList.toggle('active', mode === 'homo');
+  renderButtonUI();
+}
+
 function renderButtonUI() {
   ["male", "female"].forEach(gender => {
-    // 形状
     const shapeContainer = document.getElementById(`${gender}-shape-grid`);
     shapeContainer.innerHTML = "";
-    SHAPES.forEach(s => {
+    SHAPES.forEach((s, idx) => {
       const btn = document.createElement("button");
       btn.type = "button";
-      btn.className = `shape-btn ${state[gender].shape === s.val ? 'active' : ''}`;
-      btn.innerHTML = `${s.svgMale}<span class="code">${s.id}</span><span class="name">${s.name}</span>`;
-      btn.onclick = () => { state[gender].shape = s.val; renderButtonUI(); };
+      btn.className = `shape-btn ${state[gender].shapeIdx === idx ? 'active' : ''}`;
+      const activeGeneStr = (state[gender].shapeGeneMode === 'homo') ? s.geneHomo : s.geneHetero;
+      btn.innerHTML = `${s.svgMale}<span class="code">${s.id}</span><span class="name">${s.name}</span><span class="gene-tag">${activeGeneStr}</span>`;
+      btn.onclick = () => { state[gender].shapeIdx = idx; renderButtonUI(); };
       shapeContainer.appendChild(btn);
     });
 
-    // カラー
     const colorContainer = document.getElementById(`${gender}-color-grid`);
     colorContainer.innerHTML = "";
-    COLORS.forEach(c => {
+    COLOR_14_PRESETS.forEach((c, idx) => {
       const btn = document.createElement("button");
       btn.type = "button";
-      btn.className = `color-btn ${state[gender].color === c.val ? 'active' : ''}`;
+      btn.className = `color-btn ${state[gender].colorIdx === idx ? 'active' : ''}`;
       const swatchStyle = c.hex.includes("gradient") ? `background: ${c.hex}` : `background-color: ${c.hex}`;
-      btn.innerHTML = `<div class="color-swatch-sm" style="${swatchStyle}"></div><div class="color-name">${c.name}</div>`;
-      btn.onclick = () => { state[gender].color = c.val; renderButtonUI(); };
+      const activeGeneStr = (state[gender].colorGeneMode === 'homo') ? c.geneHomo : c.geneHetero;
+      const shortGene = activeGeneStr.split('_').map(p => p.replace(',', '')).join(' ');
+
+      btn.innerHTML = `
+        <div class="color-btn-header">
+          <div class="color-swatch-sm" style="${swatchStyle}"></div>
+          <div class="color-name">${c.name}</div>
+        </div>
+        <div class="gene-tag">${shortGene}</div>
+      `;
+      btn.onclick = () => { state[gender].colorIdx = idx; renderButtonUI(); };
       colorContainer.appendChild(btn);
     });
   });
 }
 
-// --- 遺伝ロジック ---
-
-function passAllele(a1, a2) { return Math.random() < 0.5 ? a1 : a2; }
+function passAllele(pair) { return Math.random() < 0.5 ? pair[0] : pair[1]; }
 
 function parseShapeGene(geneStr) {
   const parts = geneStr.split('_');
@@ -564,141 +571,208 @@ function parseColorGene(geneStr) {
   };
 }
 
-// 形状評価（学術モデル）
 function evaluateShapeStrict(kG, vtG, dtG, ctG, gender) {
-  const isShort = kG.includes("K");
-  const isVeil  = vtG.includes("Vt");
+  const isShort = (kG.includes("K"));
+  const isVeil  = (vtG.includes("Vt"));
   const isDouble = (dtG === "dtdt");
-  const isDtCarrier = (dtG === "Dtdt");
+  const isDtCarrier = (dtG === "Dtdt" || dtG === "dtDt");
 
-  const ctCount = (ctG.match(/ct/g) || []).length;
+  const ctStr = ctG.join('');
+  const ctCount = (ctStr.match(/ct/g) || []).length;
   const isCrown = (ctCount === 2);
   const isComb  = (ctCount === 1);
 
-  let base = SHAPES[1]; // デフォルト: HM
+  let baseId = "HM";
+  let code = "HM";
+  let name = "ハーフムーン";
 
-  if (isCrown) base = SHAPES[3];
-  else if (isDouble) base = SHAPES[4];
-  else if (isVeil) base = SHAPES[2];
-  else if (isShort) base = SHAPES[0];
+  if (isShort) {
+    if (isDouble)      { code = "DTPK";  name = "ダブルテールプラカット"; baseId = "PK"; }
+    else if (isCrown) { code = "CTPK";  name = "クラウンプラカット"; baseId = "PK"; }
+    else if (isComb)  { code = "PK-CB"; name = "コームプラカット"; baseId = "PK"; }
+    else if (isVeil)  { code = "VTPK";  name = "ベールプラカット"; baseId = "PK"; }
+    else              { code = "PK";    name = "プラカット"; baseId = "PK"; }
+  } else {
+    if (isDouble)      { code = "DTHM"; name = "ダブルテール"; baseId = "DTHM"; }
+    else if (isVeil)  { code = "VT";   name = "ベールテール"; baseId = "VT"; }
+    else if (isCrown) { code = "CT";   name = "クラウンテール"; baseId = "CT"; }
+    else if (isComb)  { code = "CBT";  name = "コームテール"; baseId = "HM"; }
+    else              { code = "HM";   name = "ハーフムーン"; baseId = "HM"; }
 
-  let code = base.id;
-  let name = base.name;
-
-  if (isComb) {
-    if (base.id === "HM") { code = "CBT"; name = "コームテール"; }
-    else { code += "-CB"; name += "(コーム)"; }
+    if (isDtCarrier && !isDouble) {
+      name = "幅広" + name;
+    }
   }
 
-  if (isDtCarrier && !isDouble) {
-    name = "幅広" + name;
-  }
+  const baseObj = SHAPES.find(s => s.id === baseId) || SHAPES[1];
+  const svg = (gender === "male") ? baseObj.svgMale : baseObj.svgFemale;
 
-  const svg = (gender === "male") ? base.svgMale : base.svgFemale;
-
-  return { id: base.id, code: code, name: name, svg: svg };
+  return { id: baseId, code: code, name: name, svg: svg };
 }
 
-// 14色の体色判定評価（画像で定義された7層モデル）
-function evaluateColor7Loci(blPair, iPair, mPair, nrPair, ePair, cPair, melPair) {
-  const hasBlueInhibitor = iPair.includes("I"); // ブルー打ち消し（有）
-  const hasRedInhibitor  = ePair.includes("E"); // 赤・黄色打ち消し（有）
-  const hasMetallic      = mPair.includes("M"); // メタリック（有）
-  const isMelano         = (melPair.join("") === "m_mm_m"); // メラノホモ
-  const isCambodian      = (cPair.join("") === "cc"); // 黒なし（キャンボジア地）
+function evaluate14Phenotype(blPair, iPair, mPair, nrPair, ePair, cPair, melPair) {
+  const isMelano = (melPair[0] === 'mel' && melPair[1] === 'mel');
+  const isCambodian = (cPair[0] === 'c' && cPair[1] === 'c');
 
-  const isNRHomo = (nrPair.join("") === "NRNR");
-  const isNRHetero = (nrPair.includes("NR") && nrPair.includes("nr"));
-  const isnrHomo = (nrPair.join("") === "nrnr");
+  if (isMelano && !isCambodian) return COLOR_14_PRESETS[0];
 
-  // 1. 黒色素層（メラノブラック優先判定）
-  if (isMelano && !isCambodian) {
-    if (!hasBlueInhibitor && blPair.includes("Bl")) {
-      return COLORS[0]; // ブラック（ブラックオーキッド風の光沢保持）
-    }
-    return COLORS[0]; // ブラック
+  const hasBl = blPair.includes("Bl");
+  const isBlBl = (blPair[0] === "Bl" && blPair[1] === "Bl");
+  const isBlbl = (hasBl && !isBlBl);
+  const hasI  = iPair.includes("I");
+  const hasM  = mPair.includes("M");
+  const hasE  = ePair.includes("E");
+  const isNRnr = (nrPair.includes("NR") && nrPair.includes("nr"));
+  const isnrnr = (nrPair[0] === "nr" && nrPair[1] === "nr");
+
+  if (hasE) {
+    if (hasM && hasI) return COLOR_14_PRESETS[11];
+    return COLOR_14_PRESETS[13];
   }
 
-  // 2. 最上層のメタリック／極厚光沢層（プラチナ・カッパー・ゴールド系）
-  if (hasMetallic) {
-    if (hasRedInhibitor && !hasBlueInhibitor) {
-      return isCambodian ? COLORS[11] : COLORS[12]; // プラチナホワイト or プラチナ
-    }
-    if (blPair.join("") === "BlBl") {
-      return COLORS[10]; // カッパーゴールド
-    }
-    if (isnrHomo && isCambodian) {
-      return COLORS[9]; // ゴールド
-    }
-    if (!hasBlueInhibitor) {
-      if (blPair.join("") === "blbl") return COLORS[4]; // メタリックグリーン
-      if (blPair.includes("Bl")) return COLORS[2]; // メタリックブルー
-    }
+  if (isCambodian && !hasI && !hasM) {
+    return COLOR_14_PRESETS[12];
   }
 
-  // 3. 虹彩素層（青発現）
-  if (!hasBlueInhibitor) {
-    if (blPair.join("") === "BlBl") return COLORS[5]; // スチールブルー
-    if (blPair.join("") === "blbl") return COLORS[3]; // ターコイズ
-    if (blPair.includes("Bl")) return COLORS[1]; // ロイヤルブルー
+  if (isBlBl) {
+    if (hasM && hasI) return COLOR_14_PRESETS[10];
+    return COLOR_14_PRESETS[5];
   }
 
-  // 4. 青が消去されている場合（赤・黄・クリア）
-  if (hasRedInhibitor) {
-    return COLORS[13]; // クリア
+  if (isBlbl) {
+    if (hasM) return COLOR_14_PRESETS[2];
+    return COLOR_14_PRESETS[1];
   }
 
-  if (isCambodian) {
-    if (isNRHomo) return COLORS[6]; // レッド
-    if (isNRHetero) return COLORS[8]; // オレンジ
-    if (isnrHomo) return COLORS[7]; // インテンスイエロー
+  if (hasM) {
+    if (isnrnr) return COLOR_14_PRESETS[9];
+    return COLOR_14_PRESETS[4];
   }
 
-  // デフォルト
-  return COLORS[6];
+  if (hasI) {
+    if (isnrnr) return COLOR_14_PRESETS[7];
+    return COLOR_14_PRESETS[3];
+  }
+
+  if (isnrnr) return COLOR_14_PRESETS[7];
+  if (isNRnr) return COLOR_14_PRESETS[8];
+  return COLOR_14_PRESETS[6];
 }
 
-// --- シミュレーション実行 ---
+function drawPieChart(canvas, data, total) {
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const size = 200;
+  canvas.width = size * dpr;
+  canvas.height = size * dpr;
+  canvas.style.width = size + 'px';
+  canvas.style.height = size + 'px';
+  ctx.scale(dpr, dpr);
+
+  const centerX = size / 2;
+  const centerY = size / 2;
+  const radius = size / 2 - 8;
+
+  ctx.clearRect(0, 0, size, size);
+
+  let startAngle = -Math.PI / 2;
+
+  data.forEach(item => {
+    const sliceAngle = (item.count / total) * 2 * Math.PI;
+    const endAngle = startAngle + sliceAngle;
+
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+    ctx.closePath();
+
+    ctx.fillStyle = item.color.chartColor || '#94a3b8';
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    const pct = (item.count / total) * 100;
+    if (pct >= 6) {
+      const midAngle = startAngle + sliceAngle / 2;
+      const textRadius = radius * 0.68;
+      const tx = centerX + Math.cos(midAngle) * textRadius;
+      const ty = centerY + Math.sin(midAngle) * textRadius;
+
+      ctx.fillStyle = item.color.isLight ? '#0f172a' : '#ffffff';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`${pct.toFixed(0)}%`, tx, ty);
+    }
+
+    startAngle = endAngle;
+  });
+
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, radius * 0.42, 0, 2 * Math.PI);
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+
+  ctx.fillStyle = '#1e3a8a';
+  ctx.font = 'bold 13px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(`${total}匹`, centerX, centerY);
+}
 
 function simulateBreeding() {
-  const mShapeObj = parseShapeGene(state.male.shape);
-  const fShapeObj = parseShapeGene(state.female.shape);
-  const mColorObj = parseColorGene(state.male.color);
-  const fColorObj = parseColorGene(state.female.color);
+  const mShapePreset = SHAPES[state.male.shapeIdx];
+  const fShapePreset = SHAPES[state.female.shapeIdx];
+  const mShapeStr = (state.male.shapeGeneMode === 'homo') ? mShapePreset.geneHomo : mShapePreset.geneHetero;
+  const fShapeStr = (state.female.shapeGeneMode === 'homo') ? fShapePreset.geneHomo : fShapePreset.geneHetero;
+
+  const mShapeObj = parseShapeGene(mShapeStr);
+  const fShapeObj = parseShapeGene(fShapeStr);
+
+  const mColorPreset = COLOR_14_PRESETS[state.male.colorIdx];
+  const fColorPreset = COLOR_14_PRESETS[state.female.colorIdx];
+  const mColorStr = (state.male.colorGeneMode === 'homo') ? mColorPreset.geneHomo : mColorPreset.geneHetero;
+  const fColorStr = (state.female.colorGeneMode === 'homo') ? fColorPreset.geneHomo : fColorPreset.geneHetero;
+
+  const mColorObj = parseColorGene(mColorStr);
+  const fColorObj = parseColorGene(fColorStr);
 
   const count = parseInt(document.getElementById("offspring-count").value) || 100;
   const offspringList = [];
   const stats = {};
 
   for (let i = 1; i <= count; i++) {
-    // 1. 性別決定 (1:1)
     const gender = Math.random() < 0.5 ? "male" : "female";
 
-    // 2. 形状遺伝
-    const childK  = passAllele(mShapeObj.k[0], mShapeObj.k[1]) + passAllele(fShapeObj.k[0], fShapeObj.k[1]);
-    const childVt = passAllele(mShapeObj.vt[0], mShapeObj.vt[1]) + passAllele(fShapeObj.vt[0], fShapeObj.vt[1]);
-    const childDt = passAllele(mShapeObj.dt[0], mShapeObj.dt[1]) + passAllele(fShapeObj.dt[0], fShapeObj.dt[1]);
-    const childCt = passAllele(mShapeObj.ct[0], mShapeObj.ct[1]) + passAllele(fShapeObj.ct[0], fShapeObj.ct[1]);
+    const childK  = [passAllele(mShapeObj.k),  passAllele(fShapeObj.k)];
+    const childVt = [passAllele(mShapeObj.vt), passAllele(fShapeObj.vt)];
+    const childDt = [passAllele(mShapeObj.dt), passAllele(fShapeObj.dt)];
+    const childCt = [passAllele(mShapeObj.ct), passAllele(fShapeObj.ct)];
+    const shapeRes = evaluateShapeStrict(childK, childVt, childDt.join(''), childCt, gender);
 
-    const shapeRes = evaluateShapeStrict(childK, childVt, childDt, childCt, gender);
+    const childBl  = [passAllele(mColorObj.bl), passAllele(fColorObj.bl)];
+    const childI   = [passAllele(mColorObj.i), passAllele(fColorObj.i)];
+    const childM   = [passAllele(mColorObj.m), passAllele(fColorObj.m)];
+    const childNR  = [passAllele(mColorObj.nr), passAllele(fColorObj.nr)];
+    const childE   = [passAllele(mColorObj.e), passAllele(fColorObj.e)];
+    const childC   = [passAllele(mColorObj.c), passAllele(fColorObj.c)];
+    const childMel = [passAllele(mColorObj.mel), passAllele(fColorObj.mel)];
 
-    // 3. カラー遺伝（7つの対立遺伝子を独立抽出）
-    const childBl  = [passAllele(mColorObj.bl[0], mColorObj.bl[1]), passAllele(fColorObj.bl[0], fColorObj.bl[1])];
-    const childI   = [passAllele(mColorObj.i[0], mColorObj.i[1]), passAllele(fColorObj.i[0], fColorObj.i[1])];
-    const childM   = [passAllele(mColorObj.m[0], mColorObj.m[1]), passAllele(fColorObj.m[0], fColorObj.m[1])];
-    const childNR  = [passAllele(mColorObj.nr[0], mColorObj.nr[1]), passAllele(fColorObj.nr[0], fColorObj.nr[1])];
-    const childE   = [passAllele(mColorObj.e[0], mColorObj.e[1]), passAllele(fColorObj.e[0], fColorObj.e[1])];
-    const childC   = [passAllele(mColorObj.c[0], mColorObj.c[1]), passAllele(fColorObj.c[0], fColorObj.c[1])];
-    const childMel = [passAllele(mColorObj.mel[0], mColorObj.mel[1]), passAllele(fColorObj.mel[0], fColorObj.mel[1])];
+    const colorRes = evaluate14Phenotype(childBl, childI, childM, childNR, childE, childC, childMel);
 
-    const colorRes = evaluateColor7Loci(childBl, childI, childM, childNR, childE, childC, childMel);
+    const shapeGeneText = `${childK.join('')} ${childVt.join('')} ${childDt.join('')} ${childCt.join('')}`;
+    const colorGeneText = `${childBl.join('')} ${childI.join('')} ${childM.join('')} ${childNR.join('')} ${childE.join('')} ${childC.join('')} ${childMel.join('')}`;
+
     const traitKey = `${colorRes.id}_${shapeRes.code}`;
 
     offspringList.push({
       id: i,
       gender: gender,
       shape: shapeRes,
-      color: colorRes
+      color: colorRes,
+      shapeGene: shapeGeneText,
+      colorGene: colorGeneText
     });
 
     if (!stats[traitKey]) {
@@ -709,16 +783,23 @@ function simulateBreeding() {
     else stats[traitKey].femaleCount++;
   }
 
-  // --- 画面描画 ---
   document.getElementById("results-wrapper").style.display = "block";
   const summaryBox = document.getElementById("summary-box");
   const fishGrid = document.getElementById("fish-grid");
   fishGrid.innerHTML = "";
 
-  // 1. 集計エリア
-  let summaryHtml = `<h3>■ 孵化統計 (全 ${count} 匹)</h3><div class="summary-grid">`;
-  for (const key in stats) {
-    const item = stats[key];
+  const sortedStats = Object.values(stats).sort((a, b) => b.count - a.count);
+
+  let summaryHtml = `
+    <h3>■ 交配統計結果（割合グラフ ＆ 出現内訳）</h3>
+    <div class="chart-and-stats">
+      <div class="chart-container">
+        <canvas id="stat-pie-chart"></canvas>
+      </div>
+      <div class="summary-grid">
+  `;
+
+  sortedStats.forEach(item => {
     const pct = ((item.count / count) * 100).toFixed(1);
     const bgStyle = item.color.hex.includes("gradient") ? `background: ${item.color.hex};` : `background-color: ${item.color.hex};`;
     const lightClass = item.color.isLight ? 'is-light' : '';
@@ -727,23 +808,33 @@ function simulateBreeding() {
       <div class="summary-card">
         <div class="fish-visual-badge ${lightClass}" style="${bgStyle}">${item.shape.svg}</div>
         <div class="details">
-          <div class="trait-title">${item.color.name} ${item.shape.code}</div>
+          <div class="trait-title">${item.color.name}<br>× ${item.shape.name}</div>
           <div class="count-text"><strong>${item.count}匹</strong> (${pct}%)</div>
           <div class="count-text">♂${item.maleCount} / ♀${item.femaleCount}</div>
         </div>
       </div>
     `;
-  }
-  summaryHtml += "</div>";
+  });
+
+  summaryHtml += `
+      </div>
+    </div>
+  `;
   summaryBox.innerHTML = summaryHtml;
 
-  // 2. ミニ個体カード描画
+  const chartCanvas = document.getElementById("stat-pie-chart");
+  if (chartCanvas) {
+    drawPieChart(chartCanvas, sortedStats, count);
+  }
+
   offspringList.forEach(fish => {
     const card = document.createElement("div");
-    card.className = "fish-card";
+    const isMale = fish.gender === "male";
+    card.className = `fish-card ${isMale ? 'is-male' : ''}`;
+
     const bgStyle = fish.color.hex.includes("gradient") ? `background: ${fish.color.hex};` : `background-color: ${fish.color.hex};`;
     const lightClass = fish.color.isLight ? 'is-light' : '';
-    const genderSymbol = fish.gender === "male" ? "♂" : "♀";
+    const genderSymbol = isMale ? "♂" : "♀";
 
     card.innerHTML = `
       <div class="id">#${fish.id}</div>
@@ -751,17 +842,16 @@ function simulateBreeding() {
       <div class="fish-card-visual ${lightClass}" style="${bgStyle}">
         ${fish.shape.svg}
       </div>
-      <div class="trait-name">${fish.color.name}</div>
-      <div class="shape-sub">${fish.shape.code}</div>
+      <div class="trait-name" title="${fish.shape.name}">${fish.shape.name}</div>
+      <div class="trait-name" style="color:#64748b;">${fish.color.name}</div>
+      <div class="gene-sub" title="形状: ${fish.shapeGene} / 色彩: ${fish.colorGene}">${fish.shapeGene}</div>
     `;
     fishGrid.appendChild(card);
   });
 
-  // スクロール
   document.getElementById("results-wrapper").scrollIntoView({ behavior: 'smooth' });
 }
 
-// 初期化
 renderButtonUI();
 </script>
 
