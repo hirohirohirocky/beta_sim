@@ -35,18 +35,160 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
 
-    h1 {
+    .header-area {
       text-align: center;
+      margin-bottom: 16px;
+      position: relative;
+    }
+
+    h1 {
       color: var(--primary-blue);
       margin: 0 0 4px 0;
       font-size: 1.3rem;
     }
 
     .subtitle {
-      text-align: center;
       font-size: 0.8rem;
       color: #64748b;
-      margin-bottom: 16px;
+      margin-bottom: 10px;
+    }
+
+    .manual-btn {
+      background: #3b82f6;
+      color: #fff;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+      transition: background 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .manual-btn:hover {
+      background: #2563eb;
+    }
+
+    /* モーダル表示用スタイル */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #ffffff;
+      width: 100%;
+      max-width: 800px;
+      max-height: 85vh;
+      border-radius: 16px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: modalFadeIn 0.2s ease-out;
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .modal-header {
+      padding: 14px 20px;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1.1rem;
+      color: var(--primary-blue);
+    }
+
+    .close-btn {
+      background: transparent;
+      border: none;
+      font-size: 1.5rem;
+      line-height: 1;
+      color: #64748b;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: #334155;
+    }
+
+    .modal-body h3 {
+      font-size: 1rem;
+      color: #1e3a8a;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 4px;
+      margin-top: 20px;
+      margin-bottom: 8px;
+    }
+
+    .modal-body h3:first-child {
+      margin-top: 0;
+    }
+
+    .modal-body ul, .modal-body ol {
+      padding-left: 20px;
+      margin: 8px 0;
+    }
+
+    .modal-body pre {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    .modal-body table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 0.8rem;
+    }
+
+    .modal-body th, .modal-body td {
+      border: 1px solid #cbd5e1;
+      padding: 6px 8px;
+      text-align: left;
+    }
+
+    .modal-body th {
+      background: #f1f5f9;
+      color: #0f172a;
     }
 
     .parent-tabs {
@@ -366,8 +508,11 @@
 <body>
 
 <div class="container">
-  <h1>ベタ 形状＆色彩 完全遺伝シミュレーター</h1>
-  <div class="subtitle">ヒレ遺伝子4座 ＆ 色彩遺伝子7座 多因子統合モデル</div>
+  <div class="header-area">
+    <h1>ベタ 形状＆色彩 完全遺伝シミュレーター</h1>
+    <div class="subtitle">ヒレ遺伝子4座 ＆ 色彩遺伝子7座 多因子統合モデル</div>
+    <button class="manual-btn" onclick="openManual()">📖 遺伝アルゴリズム説明書</button>
+  </div>
 
   <div class="parent-tabs">
     <button class="tab-btn male active" id="tab-male" onclick="switchTab('male')">♂ オス親の設定</button>
@@ -425,7 +570,142 @@
   </div>
 </div>
 
+<!-- 説明書モーダル -->
+<div class="modal-overlay" id="manual-modal" onclick="closeManualOnOverlay(event)">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>ベタ 形状＆色彩 遺伝シミュレーター 仕様・解説書</h2>
+      <button class="close-btn" onclick="closeManual()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <h3>1. 全体メカニズム（遺伝の基本則）</h3>
+      <p>本シミュレーターは、メンデルの遺伝法則（対立遺伝子の独立の法則・分離の法則）に基づいて動いています。</p>
+      <ol>
+        <li><strong>両親の遺伝子対の分離</strong>：親が持つ各遺伝子座の2つの因子（例：K, k）から、ランダム（各50%の確率）で1つずつが卵・精子に受け継がれます。</li>
+        <li><strong>子の遺伝子対の形成</strong>：オス親から1つ、メス親から1つを受け取り、子の遺伝子対（例：Kk）が決定します。</li>
+        <li><strong>表現型（見た目）の判定</strong>：確定した「ヒレ4座」および「色彩7座」の遺伝子コンビネーションに対し、あらかじめ定められた優先度付きの分岐条件（アルゴリズム）を適用して、最終的な形状名と色彩名を決定します。</li>
+      </ol>
+
+      <h3>2. ヒレ形状の決定アルゴリズム（4座）</h3>
+      <p><strong>扱う4つのヒレ遺伝子座：</strong></p>
+      <ul>
+        <li><strong>K座（Plakat）</strong>：K（優性：ヒレが短くなる）/ k（潜性：ヒレが伸長する）</li>
+        <li><strong>Vt座（Veil tail）</strong>：Vt（優性：下垂する長いヒレ）/ vt（潜性：ハーフムーン等の形状）</li>
+        <li><strong>Dt座（Double tail）</strong>：Dt（優性：シングルテール）/ dt（潜性：上下2枚に分かれる尾ヒレ）</li>
+        <li><strong>CT座（Crown tail）</strong>：CT（優性：通常のヒレ膜）/ ct（不完全優性/潜性：条が突出する）</li>
+      </ul>
+
+      <p><strong>判定分岐フロー（優先度順）：</strong></p>
+      <pre>【ヒレ形状の判定優先順位】
+1. ショートフィン判定（K遺伝子の有無）
+   ├─ あり (Kk または KK) ─── ショートフィン系（プラカット）
+   │    ├─ dt,dt ─────────── ダブルテールプラカット (DTPK)
+   │    ├─ ct,ct ─────────── クラウンプラカット (CTPK)
+   │    ├─ CT,ct (1つ) ───── コームプラカット (PK-CB)
+   │    ├─ Vtあり ────────── ベールプラカット (VTPK)
+   │    └─ その他 ────────── プラカット (PK)
+   │
+   └─ なし (kk) ──────────── ロングフィン系
+        ├─ dt,dt ─────────── ダブルテール (DTHM)
+        ├─ Vtあり ────────── ベールテール (VT)
+        ├─ ct,ct ─────────── クラウンテール (CT)
+        ├─ CT,ct (1つ) ───── コームテール (CBT)
+        └─ その他 ────────── ハーフムーン (HM)
+
+ ※ロングフィン系で「Dt,dt（ヘテロ）」の場合は、名称の頭に「幅広」が付与されます。</pre>
+
+      <h3>3. 色彩の決定アルゴリズム（7座）</h3>
+      <p><strong>扱う7つの色彩遺伝子座：</strong></p>
+      <ul>
+        <li><strong>Bl座（Blue）</strong>：Bl（ブルー層） / bl（ノンブルー）</li>
+        <li><strong>I座（Iridophore）</strong>：I（構造色・光沢あり） / i（光沢なし）</li>
+        <li><strong>M座（Metallic）</strong>：M（メタリック光沢） / m（通常光沢）</li>
+        <li><strong>NR座（Non-Red）</strong>：NR（赤発現） / nr（赤非発現・黄色化）</li>
+        <li><strong>E座（Opaque/White）</strong>：E（ホワイトオパーク・不透明化） / e（通常）</li>
+        <li><strong>C座（Cambodian）</strong>：C（正常体色） / c（カンボジアン：体色透明・色素欠損）</li>
+        <li><strong>Mel座（Melano）</strong>：mel（メラノブラック） / Mel（通常）</li>
+      </ul>
+
+      <p><strong>判定分岐テーブル（優先度順）：</strong></p>
+      <table>
+        <thead>
+          <tr>
+            <th>順位</th>
+            <th>条件（子の遺伝子判定）</th>
+            <th>決定される色彩（フェノタイプ）</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1</strong></td>
+            <td>mel,mel かつ Cを含む（カンボジアンでない）</td>
+            <td><strong>1. ブラック</strong>（メラノブラック）</td>
+          </tr>
+          <tr>
+            <td><strong>2</strong></td>
+            <td>E を1つ以上保持（オパーク層発現）<br>└ M かつ I を保持<br>└ 上記以外</td>
+            <td><br><strong>12. プラチナホワイト</strong><br><strong>14. ホワイトオパーク</strong></td>
+          </tr>
+          <tr>
+            <td><strong>3</strong></td>
+            <td>c,c（カンボジアン）かつ i,i かつ m,m（光沢なし）</td>
+            <td><strong>13. クリアー（透明/カンボジアン）</strong></td>
+          </tr>
+          <tr>
+            <td><strong>4</strong></td>
+            <td>Bl,Bl（スチール遺伝子）<br>└ M かつ I を保持<br>└ 上記以外</td>
+            <td><br><strong>11. カッパー</strong><br><strong>6. スチールブルー</strong></td>
+          </tr>
+          <tr>
+            <td><strong>5</strong></td>
+            <td>Bl,bl（ロイヤルブルーヘテロ）<br>└ M を保持<br>└ 上記以外</td>
+            <td><br><strong>3. メタリックブルー</strong><br><strong>2. ロイヤルブルー</strong></td>
+          </tr>
+          <tr>
+            <td><strong>6</strong></td>
+            <td>bl,bl かつ M を保持（メタリック層）<br>└ nr,nr（イエロー化）<br>└ 上記以外</td>
+            <td><br><strong>10. ゴールド</strong><br><strong>5. メタリックグリーン</strong></td>
+          </tr>
+          <tr>
+            <td><strong>7</strong></td>
+            <td>bl,bl かつ I を保持（青光沢層）<br>└ nr,nr（イエロー化）<br>└ 上記以外</td>
+            <td><br><strong>8. イエロー</strong><br><strong>4. ターコイズブルー</strong></td>
+          </tr>
+          <tr>
+            <td><strong>8</strong></td>
+            <td>上記すべてに該当しない（光沢なし系：bl,bl / i,i / m,m）<br>└ nr,nr（イエローホモ）<br>└ NR,nr（ヘテロ）<br>└ NR,NR（レッドホモ）</td>
+            <td><br><br><strong>8. イエロー</strong><br><strong>9. オレンジ</strong><br><strong>7. レッド</strong></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>4. 実態（実際のベタ繁殖）と比較・検証すべき論点</h3>
+      <ol>
+        <li><strong>赤系遺伝子（NR座）の対立遺伝子と不完全優性</strong><br>現実ではオレンジは「イエロー＋赤の不完全発現」や別系統（マーブル系・ドラゴン系）が絡むケースもあり、単純な1座のヘテロでオレンジが確定するかは血統に依存します。</li>
+        <li><strong>クラウンテール（CT座）の表現</strong><br>クラウンテールは多因子遺伝の性質が強く、交配世代（F1, F2）によってヒレの伸び率（レイの突出度）に大きな個体差が出ます。</li>
+        <li><strong>ドラゴン・マーブル・ギャラクシー遺伝子（未実装座）</strong><br>近年の改良ベタ（鯉ベタ、ギャラクシー、ドラゴン等）に不可欠な「マーブル遺伝子」や「ドラゴン遺伝子」は未組み込みのため、必要に応じて遺伝子座の追加検討が有効です。</li>
+        <li><strong>メス親のメラノブラック致死（不妊）問題</strong><br>純粋なメラノブラックのメス（mel/mel）は卵の膜が硬くなり孵化しない（不妊）という致死性があります。現実味を増す場合は「メスがメラノの場合は交配不可または産卵数0」とするルール設定が考えられます。</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
 <script>
+// --- モーダル制御 ---
+function openManual() {
+  document.getElementById('manual-modal').classList.add('active');
+}
+
+function closeManual() {
+  document.getElementById('manual-modal').classList.remove('active');
+}
+
+function closeManualOnOverlay(e) {
+  if (e.target.id === 'manual-modal') {
+    closeManual();
+  }
+}
+
 // --- 5種形状定義 ---
 const SHAPES = [
   {
@@ -465,7 +745,7 @@ const SHAPES = [
   }
 ];
 
-// --- 14種色彩定義 (修正済み) ---
+// --- 14種色彩定義 ---
 const COLOR_14_PRESETS = [
   { id: "black",          name: "1. ブラック",             hex: "#18181b", chartColor: "#18181b", isLight: false, geneHomo: "bl,bl_i,i_m,m_NR,NR_e,e_C,C_mel,mel", geneHetero: "bl,bl_i,i_m,m_NR,nr_e,e_C,c_Mel,mel" },
   { id: "r-blue",         name: "2. ロイヤルブルー",        hex: "#1d4ed8", chartColor: "#1d4ed8", isLight: false, geneHomo: "Bl,bl_I,I_m,m_NR,NR_e,e_C,C_Mel,Mel", geneHetero: "Bl,bl_I,i_m,m_NR,nr_e,e_C,c_Mel,Mel" },
